@@ -1,0 +1,144 @@
+# =================================================================
+# PROJECT: ADVANCED WEB AUTOMATION & DATA LOGGING
+# GOAL: Automate Browser Interaction -> Extract Multi-Column Data -> Export
+# =================================================================
+
+"""
+DETAILED THEORY: PYTHON CORE & AUTOMATION CONCEPTS
+-------------------------------------------------
+1. PYTHON FUNDAMENTALS:
+   - VARIABLES & DATA TYPES: Python handles strings (text), integers (numbers), 
+     and floats (decimals) dynamically.
+   - CONTROL FLOW: We use 'Try-Except' blocks (Exception Handling). This ensures 
+     the script doesn't crash if a website element fails to load.
+   - LIST COMPREHENSION: A concise way to process lists. Instead of a 4-line 
+     'for loop', we use one line to extract text.
+
+2. SELENIUM (The Automation Engine):
+   - WEBDRIVER: Acts as the bridge between your code and the browser (Chrome).
+   - EXPLICIT WAITS: Instead of just sleeping, we can tell the robot to wait 
+     exactly until a specific button appears. This makes the script faster.
+   - PAGINATION: The logic of clicking 'Next' to move across multiple pages 
+     of a website to gather more data.
+
+3. THE DOM (Document Object Model):
+   - The DOM is a programming interface for web documents. It represents the 
+     page so that programs can change the document structure, style, and content.
+   - SELECTORS: We use Class Names, IDs, or XPaths to "target" specific nodes.
+
+4. PANDAS & DATA ENGINEERING:
+   - DATAFRAME: A 2-dimensional, size-mutable, potentially heterogeneous 
+     tabular data structure. Think of it as a Python-based Excel sheet.
+   - DATA CLEANING: Before saving, we can remove empty rows or duplicates 
+     using Pandas functions like .dropna() or .drop_duplicates().
+"""
+
+
+
+# -----------------------------------------------------------------
+# STEP 1: IMPORTING THE REQUIRED LIBRARIES
+# -----------------------------------------------------------------
+import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+def master_automation_process():
+    # -------------------------------------------------------------
+    # STEP 2: SETUP THE ROBOT (HEADLESS CONFIGURATION)
+    # -------------------------------------------------------------
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")
+
+    driver = webdriver.Chrome(options=options)
+    
+    # This list will store dictionaries (Rows of data)
+    all_extracted_data = []
+
+    try:
+        # ---------------------------------------------------------
+        # STEP 3: NAVIGATE TO TARGET SITE
+        # ---------------------------------------------------------
+        url = "https://www.example.com/products" 
+        driver.get(url)
+        print(f"Successfully connected to: {url}")
+        
+        # ---------------------------------------------------------
+        # STEP 4: MULTI-PAGE / MULTI-COLUMN SCRAPING LOGIC
+        # ---------------------------------------------------------
+        wait = WebDriverWait(driver, 10)
+        
+        # Let's scrape the first 2 pages as an example
+        for page in range(2):
+            print(f"Currently scraping page {page + 1}...")
+            
+            # Ensure the items are loaded
+            wait.until(EC.presence_of_element_located((By.CLASS_NAME, "product-card")))
+
+            # Find all product containers
+            products = driver.find_elements(By.CLASS_NAME, "product-card")
+            
+            for item in products:
+                try:
+                    # Extracting multiple columns (Name and Price)
+                    name = item.find_element(By.CLASS_NAME, "product-name").text.strip()
+                    price = item.find_element(By.CLASS_NAME, "product-price").text.strip()
+                    
+                    # Store as a dictionary (One Row)
+                    all_extracted_data.append({
+                        "Product Name": name,
+                        "Price": price,
+                        "Page Number": page + 1
+                    })
+                except:
+                    continue # Skip if an item is missing data
+
+            # Logic to click the 'Next' button if it exists
+            try:
+                next_button = driver.find_element(By.LINK_TEXT, "Next")
+                next_button.click()
+                time.sleep(2) # Short wait for next page to load
+            except:
+                print("No more pages found.")
+                break
+
+        print(f"Extracted total of {len(all_extracted_data)} data rows.")
+
+        # ---------------------------------------------------------
+        # STEP 5: PANDAS DATA STRUCTURING & CLEANING
+        # ---------------------------------------------------------
+        # Creating the Table from the list of dictionaries
+        df = pd.DataFrame(all_extracted_data)
+
+        # Remove duplicates if same product appears twice
+        df = df.drop_duplicates()
+        
+        # Clean any currency symbols from Price column (Example)
+        if 'Price' in df.columns:
+            df['Price'] = df['Price'].str.replace('$', '').str.replace(',', '')
+        
+        # ---------------------------------------------------------
+        # STEP 6: EXPORTING TO EXCEL
+        # ---------------------------------------------------------
+        output_file = "Internship_Final_Report.xlsx"
+        df.to_excel(output_file, index=False)
+        print(f"File '{output_file}' generated and saved successfully!")
+
+    except Exception as e:
+        print(f"An Error Occurred: {e}")
+
+    finally:
+        driver.quit()
+        print("Automation Script Finished.")
+
+# Start execution
+if __name__ == "__main__":
+    master_automation_process()
+
+"""
