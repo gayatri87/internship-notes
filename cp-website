@@ -1,0 +1,91 @@
+// =================================================================
+// PROJECT: WEB EVOLUTION & FRONT-END ARCHITECTURE
+// GOAL: Static HTML/JS -> Modern React + Vite + Mantine UI
+// =================================================================
+
+/*
+DETAILED THEORY: WEB DEVELOPMENT CONCEPTS
+-------------------------------------------------
+1. PHASE 1: LEGACY WEB FUNDAMENTALS
+   - SEMANTIC HTML5: Using tags that describe their meaning (e.g., <nav>, <footer>) 
+     instead of just <div>. This helps SEO and accessibility.
+   - CSS3 STYLING: Manual layout management using Box Model, Flexbox, or Grid.
+   - JAVASCRIPT (ES6+): The "Logic Layer." Used for DOM manipulation and 
+     handling manual page redirects via 'window.location'.
+
+2. PHASE 2: REACT + VITE (MODERN STACK)
+   - COMPONENT-BASED ARCHITECTURE: Breaking the UI into small, reusable LEGO-like 
+     pieces. This makes code easier to maintain than long HTML files.
+   - VITE: A modern build tool that provides "Hot Module Replacement" (HMR). 
+     When you change code, only the changed part updates instantly in the browser.
+   - NODE.JS: The runtime environment that allows us to run development tools 
+     and manage libraries via NPM (Node Package Manager).
+
+3. UI FRAMEWORKS (MANTINE UI):
+   - DESIGN SYSTEM: Instead of writing custom CSS for every button, we use a 
+     pre-styled library. This ensures industry-standard design and mobile responsiveness.
+   - PROVIDER PATTERN: Wrapping the app in a 'Provider' so all components share 
+     the same theme, colors, and fonts.
+*/
+
+
+
+// -----------------------------------------------------------------
+// STEP 1: ENVIRONMENT SETUP (BASH COMMANDS)
+// -----------------------------------------------------------------
+/*
+# Install Node.js first, then run:
+# 1. Initialize project with Vite
+npm create vite@latest pureframe-project -- --template react
+
+# 2. Enter directory and install basic tools
+cd pureframe-project
+npm install
+
+# 3. Install UI Framework (Mantine)
+npm install @mantine/core @mantine/hooks
+*/
+
+// -----------------------------------------------------------------
+// STEP 2: PROJECT STRUCTURE & UI IMPLEMENTATION (App.jsx)
+// -----------------------------------------------------------------
+import '@mantine/core/styles.css'; // Core Mantine styles
+import { MantineProvider, AppShell, Title, Button, Text, Group } from '@mantine/core';
+
+export default function App() {
+  return (
+    // STEP 3: MANTINE PROVIDER SETUP
+    // This 'wraps' the app to inject professional styling and themes.
+    <MantineProvider defaultColorScheme="light">
+      
+      {/* STEP 4: APP SHELL (STRUCTURING THE LAYOUT) 
+          AppShell provides a fixed Header and a flexible Main area. */}
+      <AppShell
+        header={{ height: 60 }}
+        padding="md"
+      >
+        <AppShell.Header p="md">
+          <Group justify="space-between">
+            <Title order={3}>Pureframe Labs App</Title>
+            {/* Legacy redirect logic replaced by modern navigation buttons */}
+            <Button variant="subtle" size="xs">Dashboard</Button>
+          </Group>
+        </AppShell.Header>
+
+        <AppShell.Main>
+          {/* STEP 5: PAGE CONTENT */}
+          <Title order={1} mt="lg">Development Progress</Title>
+          <Text size="lg" c="dimmed" mt="sm">
+            Successfully migrated from static HTML/CSS to a component-based React architecture.
+          </Text>
+
+          <Group mt="xl">
+            <Button size="md" color="blue">Explore Features</Button>
+            <Button size="md" variant="outline">View Documentation</Button>
+          </Group>
+        </AppShell.Main>
+      </AppShell>
+
+    </MantineProvider>
+  );
+}
